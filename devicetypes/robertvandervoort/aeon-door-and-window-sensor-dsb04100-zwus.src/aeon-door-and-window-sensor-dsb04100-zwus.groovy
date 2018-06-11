@@ -17,7 +17,7 @@
  */
 
 metadata {
-	definition (name: "Aeon Labs DSB04100-ZWUS - Z-Wave Door & Window Sensor - RV", namespace: "robertvandervoort", author: "Robert Vandervoort") {
+	definition (name: "Aeon Labs DSB04100 ZWUS Z Wave Door and Window Sensor", namespace: "robertvandervoort", author: "Robert Vandervoort") {
 		capability "Contact Sensor"
 		capability "Tamper Alert"
 		capability "Sensor"
