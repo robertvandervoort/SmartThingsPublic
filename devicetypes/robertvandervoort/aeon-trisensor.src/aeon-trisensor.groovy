@@ -1,13 +1,11 @@
 /**
  *
- *  Aeon Multisensor 6 (Advanced)
+ *  Aeon TriSensor
  *   
- *	github: Eric Maycock (erocm123)
- *	email: erocmail@gmail.com
- *	Date: 2017-03-08 6:45 PM
- *	Copyright Eric Maycock
+ *	github: Robert Vandervoort (robertvandervoort)
+ *	Date: 2018-06-01
  *
- *  Code has elements from other community sources @CyrilPeponnet, @Robert_Vandervoort. Greatly reworked and 
+ *  Code has elements from other community sources @erocm23, @CyrilPeponnet. Greatly reworked and 
  *  optimized for improved battery life (hopefully) :) and ease of advanced configuration. I tried to get it
  *  as feature rich as possible. 
  *
@@ -23,7 +21,7 @@
  */
 
  metadata {
-	definition (name: "aeon trisensor", namespace: "robertvamdervoort", author: "Robert Vandervoort") {
+	definition (name: "aeon trisensor", namespace: "robertvandervoort", author: "Robert Vandervoort") {
 		capability "Motion Sensor"
 		capability "Temperature Measurement"
 		capability "Illuminance Measurement"
