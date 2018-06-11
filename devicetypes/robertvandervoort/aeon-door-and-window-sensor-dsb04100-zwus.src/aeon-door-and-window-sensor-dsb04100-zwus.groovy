@@ -17,7 +17,7 @@
  */
 
 metadata {
-	definition (name: "aeon-door-and-window-sensor-dsb04100-zwus", namespace: "robertvandervoort", author: "Robert Vandervoort") {
+	definition (name: "aeon door and window sensor dsb04100 zwus", namespace: "robertvandervoort", author: "Robert Vandervoort") {
 		capability "Contact Sensor"
 		capability "Tamper Alert"
 		capability "Sensor"
