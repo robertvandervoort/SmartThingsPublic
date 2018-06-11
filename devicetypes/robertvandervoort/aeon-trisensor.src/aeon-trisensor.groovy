@@ -871,170 +871,154 @@ def configuration_model()
 {
 '''
 <configuration>
-    <Value type="list" index="101" label="Battery or USB?" min="240" max="241" value="241" byteSize="4" setting_type="zwave" fw="1.06,1.07,1.08,1.09,1.10,1.06EU,1.07EU,1.08EU,1.09EU,1.10EU,1.11EU" displayDuringSetup="true">
-    <Help>
-Is the device powered by battery or usb?
-    </Help>
-        <Item label="Battery" value="241" />
-        <Item label="USB" value="240" />
-  </Value>
-  <Value type="list" index="40" label="Enable selective reporting?" min="0" max="1" value="0" byteSize="1" setting_type="zwave" fw="1.06,1.07,1.08,1.09,1.10,1.06EU,1.07EU,1.08EU,1.09EU,1.10EU,1.11EU">
-    <Help>
-Enable/disable the selective reporting only when measurements reach a certain threshold or percentage set below. This is used to reduce network traffic.
-Default: No (Enable for Better Battery Life)
-    </Help>
-        <Item label="No" value="0" />
-        <Item label="Yes" value="1" />
-  </Value>
-  <Value type="short" byteSize="2" index="41" label="Temperature Threshold" min="1" max="5000" value="20" setting_type="zwave" fw="1.06,1.07,1.08,1.09,1.10,1.06EU,1.07EU,1.08EU,1.09EU,1.10EU,1.11EU">
-    <Help>
-Threshold change in temperature to induce an automatic report.
-Range: 1~5000.
-Default: 20
-Note:
-Only used if selective reporting is enabled.
-1. The unit is Fahrenheit for US version, Celsius for EU/AU version.
-2. The value contains one decimal point. E.g. if the value is set to 20, the threshold value =2.0 ℃ (EU/AU version) or 2.0 ℉ (US version). When the current temperature gap is more then 2.0, which will induce a temperature report to be sent out.
-    </Help>
-  </Value>
-  <Value type="byte" byteSize="1" index="42" label="Humidity Threshold" min="1" max="255" value="10" setting_type="zwave" fw="1.06,1.07,1.08,1.09,1.10,1.06EU,1.07EU,1.08EU,1.09EU,1.10EU,1.11EU">
-    <Help>
-Threshold change in humidity to induce an automatic report.
-Range: 1~255.
-Default: 10
-Note:
-Only used if selective reporting is enabled.
-1. The unit is %.
-2. The default value is 10, which means that if the current humidity gap is more than 10%, it will send out a humidity report.
-    </Help>
-  </Value>
-  <Value type="short" byteSize="2" index="43" label="Luminance Threshold" min="1" max="30000" value="100" setting_type="zwave" fw="1.06,1.07,1.08,1.09,1.10,1.06EU,1.07EU,1.08EU,1.09EU,1.10EU,1.11EU">
-    <Help>
-Threshold change in luminance to induce an automatic report.
-Range: 1~30000.
-Default: 100
-Note:
-Only used if selective reporting is enabled.
-    </Help>
-  </Value>
-  <Value type="byte" byteSize="1" index="44" label="Battery Threshold" min="1" max="99" value="10" setting_type="zwave" fw="1.06,1.07,1.08,1.09,1.10,1.06EU,1.07EU,1.08EU,1.09EU,1.10EU,1.11EU">
-    <Help>
-Threshold change in battery level to induce an automatic report.
-Range: 1~99.
-Default: 10
-Note:
-Only used if selective reporting is enabled.
-1. The unit is %.
-2. The default value is 10, which means that if the current battery level gap is more than 10%, it will send out a battery report.
-    </Help>
-  </Value>
-  <Value type="byte" byteSize="1" index="45" label="Ultraviolet Threshold" min="1" max="11" value="2" setting_type="zwave" fw="1.06,1.07,1.08,1.09,1.10,1.06EU,1.07EU,1.08EU,1.09EU,1.10EU,1.11EU">
-    <Help>
-Threshold change in ultraviolet to induce an automatic report.
-Range: 1~11.
-Default: 2
-Note: Firmware 1.06 and 1.07 only support a value of 2.
-Only used if selective reporting is enabled.
-    </Help>
-  </Value>
-  <Value type="short" byteSize="2" index="3" label="PIR reset time" min="10" max="3600" value="240" setting_type="zwave" fw="1.06,1.07,1.08,1.09,1.10,1.06EU,1.07EU,1.08EU,1.09EU,1.10EU,1.11EU" displayDuringSetup="true">
-    <Help>
-Number of seconds to wait to report motion cleared after a motion event if there is no motion detected.
-Range: 10~3600.
-Default: 240 (4 minutes)
-Note:
-(1), The time unit is seconds if the value range is in 10 to 255.
-(2), If the value range is in 256 to 3600, the time unit will be minute and its value should follow the below rules:
-a), Interval time =Value/60, if the interval time can be divided by 60 and without remainder.
-b), Interval time= (Value/60) +1, if the interval time can be divided by 60 and has remainder.
-    </Help>
-  </Value>
-    <Value type="byte" byteSize="1" index="4" label="PIR motion sensitivity" min="0" max="5" value="5" setting_type="zwave" fw="1.06,1.07,1.08,1.09,1.10,1.06EU,1.07EU,1.08EU,1.09EU,1.10EU,1.11EU" displayDuringSetup="true">
-    <Help>
-A value from 0-5, from disabled to high sensitivity
-Range: 0~5
-Default: 5
-    </Help>
-  </Value>
-    <Value type="byte" byteSize="4" index="111" label="Reporting Interval" min="5" max="2678400" value="3600" setting_type="zwave" fw="1.06,1.07,1.08,1.09,1.10,1.06EU,1.07EU,1.08EU,1.09EU,1.10EU,1.11EU" displayDuringSetup="true">
-    <Help>
-The interval time of sending reports in Report group 1
-Range: 30~
-Default: 3600 seconds
-Note:
-The unit of interval time is in seconds. Minimum interval time is 30 seconds when USB powered and 240 seconds (4 minutes) when battery powered.
-    </Help>
-  </Value>
-  <Value type="decimal" byteSize="1" index="201" label="Temperature offset" min="*" max="*" value="">
-    <Help>
-Range: None
-Default: 0
-Note: 
-1. The calibration value = standard value - measure value.
-E.g. If measure value =85.3F and the standard value = 83.2F, so the calibration value = 83.2F - 85.3F = -2.1F.
-If the measure value =60.1F and the standard value = 63.2F, so the calibration value = 63.2F - 60.1℃ = 3.1F. 
-    </Help>
-  </Value>
-  <Value type="byte" byteSize="1" index="202" label="Humidity offset" min="*" max="*" value="">
-    <Help>
-Range: None
-Default: 0
-Note:
-The calibration value = standard value - measure value.
-E.g. If measure value = 80RH and the standard value = 75RH, so the calibration value = 75RH – 80RH = -5RH.
-If the measure value = 85RH and the standard value = 90RH, so the calibration value = 90RH – 85RH = 5RH. 
-    </Help>
-  </Value>
-    <Value type="byte" byteSize="2" index="203" label="Luminance offset" min="*" max="*" value="">
-    <Help>
-Range: None
-Default: 0
-Note:
-The calibration value = standard value - measure value.
-E.g. If measure value = 800Lux and the standard value = 750Lux, so the calibration value = 750 – 800 = -50.
-If the measure value = 850Lux and the standard value = 900Lux, so the calibration value = 900 – 850 = 50.
-    </Help>
-  </Value>
-    <Value type="byte" byteSize="1" index="204" label="Ultraviolet offset" min="*" max="*" value="">
-    <Help>
-Range: None
-Default: 0
-Note:
-The calibration value = standard value - measure value.
-E.g. If measure value = 9 and the standard value = 8, so the calibration value = 8 – 9 = -1.
-If the measure value = 7 and the standard value = 9, so the calibration value = 9 – 7 = 2. 
-    </Help>
-  </Value>
-  <Value type="list" index="5" label="Command Option" min="1" max="2" value="1" byteSize="1" setting_type="zwave" fw="1.06,1.07,1.08,1.09,1.10,1.06EU,1.07EU,1.08EU,1.09EU,1.10EU,1.11EU">
-    <Help>
-Which command should be sent when the motion sensor is triggered
-Default: Basic Set
-    </Help>
-        <Item label="Basic Set" value="1" />
-        <Item label="Sensor Binary" value="2" />
-  </Value>
-  <Value type="list" index="81" label="LED Options" min="0" max="1" value="0" byteSize="1" setting_type="zwave" fw="1.08,1.09,1.10,1.08EU,1.09EU,1.10EU,1.11EU">
-    <Help>
-Choose how the LED functions. (Option 1, 2 firmware v1.08+, Option 1, 2, 3 firmware v1.10+)
-Default: Enabled
-    </Help>
-        <Item label="Fully Enabled" value="0" />
-        <Item label="Disable When Motion" value="1" />
-        <Item label="Fully Disabled" value="2" />
-  </Value>
-  <Value type="byte" index="8" label="Stay Awake Time?" min="8" max="255" value="30" byteSize="1" setting_type="zwave" fw="1.08,1.09,1.10,1.08EU,1.09EU,1.10EU,1.11EU">
-    <Help>
-Set the timeout of awake after the Wake Up CC is sent out. (Works on Firmware v1.08 only)
-Range: 8~255
-Default: 30
-Note: May help if config parameters aren't making it before device goes back to sleep.
-    </Help>
-  </Value>
-  <Value type="boolean" index="enableDebugging" label="Enable Debug Logging?" value="true" setting_type="preference" fw="1.06,1.07,1.08,1.09,1.10,1.06EU,1.07EU,1.08EU,1.09EU,1.10EU,1.11EU">
-    <Help>
+	<Value type="short" byteSize="2" index="1" label="Motion Retrigger Time" min="0" max="32767" value="30" setting_type="zwave" fw="">
+		<Help>
+			Delay time before PIR sensor can be triggered again to reset motion timeout counter.
+			Range: 0~32767.
+			Default: 30
+			Note:
+			Value = 0 will disable PIR sensor from triggering until motion timeout has finished.
+		</Help>
+	</Value>
 
-    </Help>
-  </Value>
+	<Value type="short" byteSize="2" index="2" label="Motion Clear Time" min="1" max="32767" value="240" setting_type="zwave" fw="">
+		<Help>
+			Time in seconds to clear motion event after a motion event detected.
+			Range: 1~32767.
+			Default: 240
+			Note:
+			The device will send a clear event report to controller and send BASIC_SET = 0x00 to nodes associated in group 2. Unit: Second.
+		</Help>
+	</Value>
+
+	<Value type="byte" byteSize="1" index="3" label="Motion Sensitivity" min="0" max="11" value="11" setting_type="zwave" fw="">
+		<Help>
+			Configures sensitivity of the PIR motion detector.
+			Range: 0~11.
+			Default: 11
+			Note:
+			0 – PIR sensor disabled
+			1 – Lowest sensitivity
+			11 – Highest sensitivity
+		</Help>
+	</Value>
+	
+	<Value type="list" index="4" label="Binary Sensor Report Enable" min="0" max="1" value="0" byteSize="1" setting_type="zwave" fw="">
+		<Help>
+			Which command should be sent when the motion sensor is triggered
+			Default: Basic Set
+		</Help>
+        <Item label="Disable sensor binary report" value="0" />
+        <Item label="Enable sensor binary report" value="1" />
+	</Value>
+
+	<Value type="list" index="5" label="Basic Set to Associated Nodes Enable" min="0" max="3" value="0" byteSize="1" setting_type="zwave" fw="">
+		<Help>
+			This parameter enables or disables sending BASIC_SET command to nodes associated in group 2 and group 3.
+		</Help>
+        <Item label="Disable All Group Basic Set Command" value="0" />
+        <Item label="Enabled Group 2 Basic Set Command" value="1" />
+		<Item label="Enabled Group 3 Basic Set Command" value="2" />
+		<Item label="Enabled Group 2 and 3 Basic Set Command" value="3" />
+	</Value>
+
+	<Value type="list" index="6" label="Basic Set Value Settings" min="0" max="5" value="0" byteSize="1" setting_type="zwave" fw="">
+		<Help>
+			This controls what gets sent as BASIC_SET command to nodes associated with the above parameter when enabled.
+		</Help>
+        <Item label="Send BASIC_SET = 0xFF when triggered 0x00 when cleared (typical)" value="0" />
+        <Item label="Send BASIC_SET = 0x00 when triggered 0xFF when cleared (reverse)" value="1" />
+		<Item label="Send BASIC_SET = 0xFF when triggered ONLY (no clear)" value="2" />
+		<Item label="Send BASIC_SET = 0x00 when triggered ONLY (no clear)" value="3" />
+		<Item label="Send BASIC_SET = 0x00 when cleared ONLY (no trigger)" value="4" />
+		<Item label="Send BASIC_SET = 0xFF when cleared ONLY (no trigger)" value="5" />
+	</Value>
+	
+	<Value type="short" byteSize="2" index="7" label="Temperature Alarm Value" min="-400" max="1185" value="750" setting_type="zwave" fw="">
+		<Help>
+			Threshold value for temperature alarm trigger.
+			Range: -400~1185.
+			Default: 750
+			Note:
+			When the current ambient temperature value is larger than this configuration value, device will send a BASIC_SET = 0xFF to nodes associated in group 3.
+			If current temperature value is less than this value, device will send a BASIC_SET = 0x00 to nodes associated in group 3.
+			Value = [Value] × 0.1(Celsius / Fahrenheit)
+		</Help>
+	</Value>
+
+	<Value type="list" index="10" label="LED indicator disable" min="0" max="1" value="1" byteSize="1" setting_type="zwave" fw="">
+		<Help>
+			Sets whether the LED blinks on status reports or not.
+			Default: ENABLED
+		</Help>
+        <Item label="Disable LED flashes" value="0" />
+        <Item label="Enable LED flashes" value="1" />
+	</Value>
+
+	<Value type="list" index="20" label="Temperature Scale" min="0" max="1" value="1" byteSize="1" setting_type="zwave" fw="">
+		<Help>
+			Choose which temperature scale to report in.
+			Default: Fahrenheight
+		</Help>
+        <Item label="Celsius" value="0" />
+        <Item label="Fahrenheit" value="1" />
+	</Value>
+
+	<Value type="short" byteSize="2" index="21" label="Temperature reporting threshold" min="0" max="250" value="20" setting_type="zwave" fw="">
+		<Help>
+			Change threshold value for change in temperature to induce an automatic report.			
+			Range: 0~ 250
+			Default: 20
+			Note:
+			Value = [Value] × 0.1(Celsius / Fahrenheit)
+			Setting of value 20 can be a change of -2.0 or +2.0 degrees.
+		</Help>
+	</Value>
+
+	<Value type="short" byteSize="2" index="22" label="Illuminance reporting threshold" min="0" max="10000" value="100" setting_type="zwave" fw="">
+		<Help>
+			Change threshold value for change in light sensor to induce an automatic report
+			Scale: Lux
+			Range: 0~10000
+			Default: 100
+		</Help>
+	</Value>
+	
+	<Value type="short" byteSize="2" index="23" label="Temperature Sensor Report Interval" min="1" max="32767" value="3600" setting_type="zwave" fw="">
+		<Help>
+			Number of seconds between temperature reports. Longer values lead to longer battery life.
+			Range: 0~10000
+			Default: 3600
+		</Help>
+	</Value>
+
+	<Value type="short" byteSize="2" index="24" label="Illuminance Sensor Report Interval" min="1" max="32767" value="3600" setting_type="zwave" fw="">
+		<Help>
+			Number of seconds between illuminance reports. Longer values lead to longer battery life.
+			Range: 0~10000
+			Default: 3600
+		</Help>
+	</Value>
+
+	<Value type="short" byteSize="2" index="30" label="Temperature offset" min="1" max="32767" value="3600" setting_type="zwave" fw="">
+		<Help>
+			Temperature Offset Value = [Value] * 0.1(Celsius / Fahrenheit)			Range: -200 ~ 200
+			Default: 0
+		</Help>
+	</Value>
+
+	<Value type="short" byteSize="2" index="31" label="Illuminance offset" min="1" max="32767" value="3600" setting_type="zwave" fw="">
+		<Help>
+			Adjusts LUX reading of illuminance sensor by this amount.
+			Range: -200 ~ 200
+			Default: 0
+		</Help>
+	</Value>
+	
+	<Value type="boolean" index="enableDebugging" label="Enable Debug Logging?" value="true" setting_type="preference" fw="1.06,1.07,1.08,1.09,1.10,1.06EU,1.07EU,1.08EU,1.09EU,1.10EU,1.11EU">
+		<Help>
+		</Help>
+	</Value>
 </configuration>
 '''
 }
