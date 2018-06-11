@@ -249,20 +249,6 @@ def zwaveEvent(physicalgraph.zwave.commands.sensormultilevelv5.SensorMultilevelR
 			map.unit = "lux"
             logging("Illuminance Report: $map.value")
 			break;
-        case 5:
-			map.name = "humidity"
-            state.realHumidity = cmd.scaledSensorValue.toInteger()
-			map.value = getAdjustedHumidity(cmd.scaledSensorValue.toInteger())
-			map.unit = "%"
-            logging("Humidity Report: $map.value")
-			break;
-		case 27:
-        	map.name = "ultravioletIndex"
-            state.realUV = cmd.scaledSensorValue.toInteger()
-            map.value = getAdjustedUV(cmd.scaledSensorValue.toInteger())
-            map.unit = ""
-            logging("UV Report: $map.value")
-            break;
 		default:
 			map.descriptionText = cmd.toString()
 	}
@@ -373,8 +359,6 @@ def refresh() {
         request << zwave.batteryV1.batteryGet()
         request << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:1, scale:1)
         request << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:3, scale:1)
-        request << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:5, scale:1)
-        request << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:27, scale:1)
     }
 
     state.lastRefresh = now()
@@ -388,8 +372,6 @@ def ping() {
     def request = []
     request << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:1, scale:1)
     request << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:3, scale:1)
-    request << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:5, scale:1)
-    request << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:27, scale:1)
     
     commands(request)
 }
@@ -409,9 +391,6 @@ def updated()
     state.enableDebugging = settings.enableDebugging
     sendEvent(name: "checkInterval", value: 6 * 60 * 60 + 2 * 60, displayed: false, data: [protocol: "zwave", hubHardwareId: device.hub.hardwareID])
     logging("updated() is being called")
-    if(settings."101" != null && settings."101" == "240") { 
-        sendEvent(name:"batteryTile", value: "USB Powered", displayed:false)
-    } else {
         try {
             sendEvent(name:"batteryTile", value: "Battery ${(device.currentValue("battery") == null ? '?' : device.currentValue("battery"))}%", displayed:false)
         } catch (e) {
@@ -419,22 +398,17 @@ def updated()
             sendEvent(name:"battery", value: "100", displayed:false)
             sendEvent(name:"batteryTile", value: "Battery ${(device.currentValue("battery") == null ? '?' : device.currentValue("battery"))}%", displayed:false)
         }
-    }
-
+    
     state.needfwUpdate = ""
     
     if (state.realTemperature != null) sendEvent(name:"temperature", value: getAdjustedTemp(state.realTemperature))
-    if (state.realHumidity != null) sendEvent(name:"humidity", value: getAdjustedHumidity(state.realHumidity))
     if (state.realLuminance != null) sendEvent(name:"illuminance", value: getAdjustedLuminance(state.realLuminance))
-    if (state.realUV != null) sendEvent(name:"ultravioletIndex", value: getAdjustedUV(state.realUV))
     
     def cmds = update_needed_settings()
     
     if (device.currentValue("battery") == null) cmds << zwave.batteryV1.batteryGet()
     if (device.currentValue("temperature") == null) cmds << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:1, scale:1)
-    if (device.currentValue("humidity") == null) cmds << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:3, scale:1)
     if (device.currentValue("illuminance") == null) cmds << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:5, scale:1)
-    if (device.currentValue("ultravioletIndex") == null) cmds << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:27, scale:1)
         
     //updateStatus()
     
@@ -559,12 +533,6 @@ def update_needed_settings()
        cmds << zwave.versionV1.versionGet()
     }
 
-    if (state.currentProperties?."252" != [0]) {
-        logging("Unlocking configuration.")
-        cmds << zwave.configurationV1.configurationSet(configurationValue: integer2Cmd(0, 1), parameterNumber: 252, size: 1)
-        cmds << zwave.configurationV1.configurationGet(parameterNumber: 252)
-    }
-
     if(state.wakeInterval == null || state.wakeInterval != getAdjustedWake()){
         logging("Setting Wake Interval to ${getAdjustedWake()}")
         cmds << zwave.wakeUpV1.wakeUpIntervalSet(seconds: getAdjustedWake(), nodeid:zwaveHubNodeId)
@@ -589,6 +557,7 @@ def update_needed_settings()
 
                     logging("Parameter ${it.@index} will be updated to " + convertParam(it.@index.toInteger(), settings."${it.@index}".toInteger()))
                     
+                    /*
                     if (it.@index == "41") {
                         if (device.currentValue("currentFirmware") == "1.06" || device.currentValue("currentFirmware") == "1.06EU") {
                             cmds << zwave.configurationV1.configurationSet(configurationValue: integer2Cmd(convertParam(it.@index.toInteger(), settings."${it.@index}".toInteger()), 2), parameterNumber: it.@index.toInteger(), size: 2)
@@ -598,8 +567,9 @@ def update_needed_settings()
                             cmds << zwave.configurationV1.configurationSet(configurationValue: integer2Cmd(convertParam(it.@index.toInteger(), settings."${it.@index}".toInteger()), 3), parameterNumber: it.@index.toInteger(), size: 3)
                         }
                     } else {
+                    */
                         cmds << zwave.configurationV1.configurationSet(configurationValue: integer2Cmd(convertParam(it.@index.toInteger(), settings."${it.@index}".toInteger()), it.@byteSize.toInteger()), parameterNumber: it.@index.toInteger(), size: it.@byteSize.toInteger())
-                    }
+                    // }
 
                     cmds << zwave.configurationV1.configurationGet(parameterNumber: it.@index.toInteger())
                 }
@@ -791,36 +761,12 @@ private getAdjustedTemp(value) {
     
 }
 
-private getAdjustedHumidity(value) {
-    
-    value = Math.round((value as Double) * 100) / 100
-
-	if (settings."202") {
-	   return value =  value + Math.round(settings."202" * 100) /100
-	} else {
-       return value
-    }
-    
-}
-
 private getAdjustedLuminance(value) {
     
     value = Math.round((value as Double) * 100) / 100
 
 	if (settings."203") {
 	   return value =  value + Math.round(settings."203" * 100) /100
-	} else {
-       return value
-    }
-    
-}
-
-private getAdjustedUV(value) {
-    
-    value = Math.round((value as Double) * 100) / 100
-
-	if (settings."204") {
-	   return value =  value + Math.round(settings."204" * 100) /100
 	} else {
        return value
     }
@@ -850,13 +796,9 @@ private updateStatus(){
     }
 
     String statusText = ""
-    if(device.currentValue('humidity') != null)
-        statusText = "RH ${device.currentValue('humidity')}% - "
     if(device.currentValue('illuminance') != null)
         statusText = statusText + "LUX ${device.currentValue('illuminance')} - "
-    if(device.currentValue('ultravioletIndex') != null)
-        statusText = statusText + "UV ${device.currentValue('ultravioletIndex')} - "
-        
+
     if (statusText != ""){
         statusText = statusText.substring(0, statusText.length() - 2)
         sendEvent(name:"statusText", value: statusText, displayed:false)
@@ -871,50 +813,50 @@ def configuration_model()
 {
 '''
 <configuration>
-	<Value type="short" byteSize="2" index="1" label="Motion Retrigger Time" min="0" max="32767" value="30" setting_type="zwave" fw="">
+	<Value type="short" byteSize="2" index="1" label="Motion Retrigger Time" min="0" max="32767" value="30" setting_type="zwave" fw="2.07">
 		<Help>
-			Delay time before PIR sensor can be triggered again to reset motion timeout counter.
-			Range: 0~32767.
-			Default: 30
-			Note:
-			Value = 0 will disable PIR sensor from triggering until motion timeout has finished.
+Delay time before PIR sensor can be triggered again to reset motion timeout counter.
+Range: 0~32767.
+Default: 30
+Note:
+Value = 0 will disable PIR sensor from triggering until motion timeout has finished.
 		</Help>
 	</Value>
 
-	<Value type="short" byteSize="2" index="2" label="Motion Clear Time" min="1" max="32767" value="240" setting_type="zwave" fw="">
+	<Value type="short" byteSize="2" index="2" label="Motion Clear Time" min="1" max="32767" value="240" setting_type="zwave" fw="2.07">
 		<Help>
-			Time in seconds to clear motion event after a motion event detected.
-			Range: 1~32767.
-			Default: 240
-			Note:
-			The device will send a clear event report to controller and send BASIC_SET = 0x00 to nodes associated in group 2. Unit: Second.
+Time in seconds to clear motion event after a motion event detected.
+Range: 1~32767.
+Default: 240
+Note:
+The device will send a clear event report to controller and send BASIC_SET = 0x00 to nodes associated in group 2. Unit: Second.
 		</Help>
 	</Value>
 
-	<Value type="byte" byteSize="1" index="3" label="Motion Sensitivity" min="0" max="11" value="11" setting_type="zwave" fw="">
+	<Value type="byte" byteSize="1" index="3" label="Motion Sensitivity" min="0" max="11" value="11" setting_type="zwave" fw="2.07">
 		<Help>
-			Configures sensitivity of the PIR motion detector.
-			Range: 0~11.
-			Default: 11
-			Note:
-			0 – PIR sensor disabled
-			1 – Lowest sensitivity
-			11 – Highest sensitivity
+Configures sensitivity of the PIR motion detector.
+Range: 0~11.
+Default: 11
+Note:
+0 – PIR sensor disabled
+1 – Lowest sensitivity
+11 – Highest sensitivity
 		</Help>
 	</Value>
 	
-	<Value type="list" index="4" label="Binary Sensor Report Enable" min="0" max="1" value="0" byteSize="1" setting_type="zwave" fw="">
+	<Value type="list" index="4" label="Binary Sensor Report Enable" min="0" max="1" value="0" byteSize="1" setting_type="zwave" fw="2.07">
 		<Help>
-			Which command should be sent when the motion sensor is triggered
-			Default: Basic Set
+Which command should be sent when the motion sensor is triggered
+Default: Basic Set
 		</Help>
         <Item label="Disable sensor binary report" value="0" />
         <Item label="Enable sensor binary report" value="1" />
 	</Value>
 
-	<Value type="list" index="5" label="Basic Set to Associated Nodes Enable" min="0" max="3" value="0" byteSize="1" setting_type="zwave" fw="">
+	<Value type="list" index="5" label="Basic Set to Associated Nodes Enable" min="0" max="3" value="0" byteSize="1" setting_type="zwave" fw="2.07">
 		<Help>
-			This parameter enables or disables sending BASIC_SET command to nodes associated in group 2 and group 3.
+This parameter enables or disables sending BASIC_SET command to nodes associated in group 2 and group 3.
 		</Help>
         <Item label="Disable All Group Basic Set Command" value="0" />
         <Item label="Enabled Group 2 Basic Set Command" value="1" />
@@ -922,9 +864,9 @@ def configuration_model()
 		<Item label="Enabled Group 2 and 3 Basic Set Command" value="3" />
 	</Value>
 
-	<Value type="list" index="6" label="Basic Set Value Settings" min="0" max="5" value="0" byteSize="1" setting_type="zwave" fw="">
+	<Value type="list" index="6" label="Basic Set Value Settings" min="0" max="5" value="0" byteSize="1" setting_type="zwave" fw="2.07">
 		<Help>
-			This controls what gets sent as BASIC_SET command to nodes associated with the above parameter when enabled.
+This controls what gets sent as BASIC_SET command to nodes associated with the above parameter when enabled.
 		</Help>
         <Item label="Send BASIC_SET = 0xFF when triggered 0x00 when cleared (typical)" value="0" />
         <Item label="Send BASIC_SET = 0x00 when triggered 0xFF when cleared (reverse)" value="1" />
@@ -934,88 +876,89 @@ def configuration_model()
 		<Item label="Send BASIC_SET = 0xFF when cleared ONLY (no trigger)" value="5" />
 	</Value>
 	
-	<Value type="short" byteSize="2" index="7" label="Temperature Alarm Value" min="-400" max="1185" value="750" setting_type="zwave" fw="">
+	<Value type="short" byteSize="2" index="7" label="Temperature Alarm Value" min="-400" max="1185" value="750" setting_type="zwave" fw="2.07">
 		<Help>
-			Threshold value for temperature alarm trigger.
-			Range: -400~1185.
-			Default: 750
-			Note:
-			When the current ambient temperature value is larger than this configuration value, device will send a BASIC_SET = 0xFF to nodes associated in group 3.
-			If current temperature value is less than this value, device will send a BASIC_SET = 0x00 to nodes associated in group 3.
-			Value = [Value] × 0.1(Celsius / Fahrenheit)
+Threshold value for temperature alarm trigger.
+Range: -400~1185.
+Default: 750
+Note:
+When the current ambient temperature value is larger than this configuration value, device will send a BASIC_SET = 0xFF to nodes associated in group 3.
+If current temperature value is less than this value, device will send a BASIC_SET = 0x00 to nodes associated in group 3.
+Value = [Value] × 0.1(Celsius / Fahrenheit)
 		</Help>
 	</Value>
 
-	<Value type="list" index="10" label="LED indicator disable" min="0" max="1" value="1" byteSize="1" setting_type="zwave" fw="">
+	<Value type="list" index="10" label="LED indicator disable" min="0" max="1" value="1" byteSize="1" setting_type="zwave" fw="2.07">
 		<Help>
-			Sets whether the LED blinks on status reports or not.
-			Default: ENABLED
+Sets whether the LED blinks on status reports or not.
+Default: ENABLED
 		</Help>
         <Item label="Disable LED flashes" value="0" />
         <Item label="Enable LED flashes" value="1" />
 	</Value>
 
-	<Value type="list" index="20" label="Temperature Scale" min="0" max="1" value="1" byteSize="1" setting_type="zwave" fw="">
+	<Value type="list" index="20" label="Temperature Scale" min="0" max="1" value="1" byteSize="1" setting_type="zwave" fw="2.07">
 		<Help>
-			Choose which temperature scale to report in.
-			Default: Fahrenheight
+Choose which temperature scale to report in.
+Default: Fahrenheight
 		</Help>
         <Item label="Celsius" value="0" />
         <Item label="Fahrenheit" value="1" />
 	</Value>
 
-	<Value type="short" byteSize="2" index="21" label="Temperature reporting threshold" min="0" max="250" value="20" setting_type="zwave" fw="">
+	<Value type="short" byteSize="2" index="21" label="Temperature reporting threshold" min="0" max="250" value="20" setting_type="zwave" fw="2.07">
 		<Help>
-			Change threshold value for change in temperature to induce an automatic report.			
-			Range: 0~ 250
-			Default: 20
-			Note:
-			Value = [Value] × 0.1(Celsius / Fahrenheit)
-			Setting of value 20 can be a change of -2.0 or +2.0 degrees.
+Change threshold value for change in temperature to induce an automatic report.			
+Range: 0~ 250
+Default: 20
+Note:
+Value = [Value] × 0.1(Celsius / Fahrenheit)
+Setting of value 20 can be a change of -2.0 or +2.0 degrees.
 		</Help>
 	</Value>
 
-	<Value type="short" byteSize="2" index="22" label="Illuminance reporting threshold" min="0" max="10000" value="100" setting_type="zwave" fw="">
+	<Value type="short" byteSize="2" index="22" label="Illuminance reporting threshold" min="0" max="10000" value="100" setting_type="zwave" fw="2.07">
 		<Help>
-			Change threshold value for change in light sensor to induce an automatic report
-			Scale: Lux
-			Range: 0~10000
-			Default: 100
+Change threshold value for change in light sensor to induce an automatic report
+Scale: Lux
+Range: 0~10000
+Default: 100
 		</Help>
 	</Value>
 	
-	<Value type="short" byteSize="2" index="23" label="Temperature Sensor Report Interval" min="1" max="32767" value="3600" setting_type="zwave" fw="">
+	<Value type="short" byteSize="2" index="23" label="Temperature Sensor Report Interval" min="1" max="32767" value="3600" setting_type="zwave" fw="2.07">
 		<Help>
-			Number of seconds between temperature reports. Longer values lead to longer battery life.
-			Range: 0~10000
-			Default: 3600
+Number of seconds between temperature reports. Longer values lead to longer battery life.
+Range: 0~10000
+Default: 3600
 		</Help>
 	</Value>
 
-	<Value type="short" byteSize="2" index="24" label="Illuminance Sensor Report Interval" min="1" max="32767" value="3600" setting_type="zwave" fw="">
+	<Value type="short" byteSize="2" index="24" label="Illuminance Sensor Report Interval" min="1" max="32767" value="3600" setting_type="zwave" fw="2.07">
 		<Help>
-			Number of seconds between illuminance reports. Longer values lead to longer battery life.
-			Range: 0~10000
-			Default: 3600
+Number of seconds between illuminance reports. Longer values lead to longer battery life.
+Range: 0~10000
+Default: 3600
 		</Help>
 	</Value>
 
-	<Value type="short" byteSize="2" index="30" label="Temperature offset" min="1" max="32767" value="3600" setting_type="zwave" fw="">
+	<Value type="short" byteSize="2" index="30" label="Temperature offset" min="-200" max="200" value="0" setting_type="zwave" fw="2.07">
 		<Help>
-			Temperature Offset Value = [Value] * 0.1(Celsius / Fahrenheit)			Range: -200 ~ 200
-			Default: 0
+Temperature Offset Value = [Value] * 0.1(Celsius / Fahrenheit)
+Range: -200 ~ 200
+Default: 0
 		</Help>
 	</Value>
 
-	<Value type="short" byteSize="2" index="31" label="Illuminance offset" min="1" max="32767" value="3600" setting_type="zwave" fw="">
+	<Value type="short" byteSize="2" index="31" label="Illuminance offset" min="-1000" max="1000" value="0" setting_type="zwave" fw="2.07">
 		<Help>
-			Adjusts LUX reading of illuminance sensor by this amount.
-			Range: -200 ~ 200
-			Default: 0
+Adjusts LUX reading of illuminance sensor by this amount.
+Range: -1000 ~ 1000
+Default: 0
 		</Help>
 	</Value>
 	
-	<Value type="boolean" index="enableDebugging" label="Enable Debug Logging?" value="true" setting_type="preference" fw="1.06,1.07,1.08,1.09,1.10,1.06EU,1.07EU,1.08EU,1.09EU,1.10EU,1.11EU">
+	<Value type="boolean" index="enableDebugging" label="Enable Debug Logging?" value="true" setting_type="preference" fw="2.07">
 		<Help>
 		</Help>
 	</Value>
