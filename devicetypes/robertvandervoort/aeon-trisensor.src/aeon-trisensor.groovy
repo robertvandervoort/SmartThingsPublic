@@ -23,7 +23,7 @@
  */
 
  metadata {
-	definition (name: "Aeon TriSensor", namespace: "rpbertvamdervpprt", author: "Robert Vandervoort") {
+	definition (name: "Aeon TriSensor", namespace: "robertvamdervoort", author: "Robert Vandervoort") {
 		capability "Motion Sensor"
 		capability "Temperature Measurement"
 		capability "Illuminance Measurement"
