@@ -14,7 +14,7 @@
  *
  */
 metadata {
-	definition (name: "Test Blank", namespace: "robertvandervoort", author: "Robert Vandervoort") {
+	definition (name: "Test Template", namespace: "robertvandervoort", author: "Robert Vandervoort") {
 		capability "Illuminance Measurement"
 		capability "Motion Sensor"
 		capability "Sensor"
