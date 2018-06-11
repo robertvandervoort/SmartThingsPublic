@@ -29,16 +29,16 @@
 		capability "Sensor"
 		capability "Battery"
         capability "Refresh"
-        capability "Tamper Alert"
         capability "Health Check"
         
         command "resetBatteryRuntime"
 		
         attribute   "needUpdate", "string"
         
-        fingerprint deviceId: "0x2101", inClusters: "0x5E,0x86,0x72,0x59,0x85,0x73,0x71,0x84,0x80,0x30,0x31,0x70,0x98,0x7A,0x5A" // 1.07 & 1.08 Secure
+        // RAW DESC zw:Ss type:0701 mfr:0371 prod:0102 model:0005 ver:2.07 zwv:4.61 lib:03 cc:5E,98,9F,55,6C sec:86,73,85,8E,59,72,5A,80,84,30,71,31,70,7A role:06 ff:8C07 ui:8C07
+        // fingerprint deviceId: "0x2101", inClusters: "0x5E,0x86,0x72,0x59,0x85,0x73,0x71,0x84,0x80,0x30,0x31,0x70,0x98,0x7A,0x5A" // 1.07 & 1.08 Secure
         
-        fingerprint mfr:"0086", prod:"0102", model:"0064", deviceJoinName: "Aeon MultiSensor 6"
+        fingerprint mfr:"0371", prod:"0102", model:"0005", deviceJoinName: "Aeon TriSensor"
 
 	}
     preferences {
