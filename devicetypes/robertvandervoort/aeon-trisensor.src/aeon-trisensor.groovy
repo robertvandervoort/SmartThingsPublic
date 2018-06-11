@@ -291,7 +291,7 @@ def zwaveEvent(physicalgraph.zwave.commands.notificationv3.NotificationReport cm
 	if (cmd.notificationType == 7) {
 		switch (cmd.event) {
 			case 0:
-				//result << motionEvent(0)
+				if (cmd.eventParameter == 8) {result << motionEvent(0)}
 				result << createEvent(name: "tamper", value: "clear", descriptionText: "$device.displayName tamper cleared")
                 result << createEvent(name: "acceleration", value: "inactive", descriptionText: "$device.displayName tamper cleared", displayed:false)
 				break
@@ -299,10 +299,10 @@ def zwaveEvent(physicalgraph.zwave.commands.notificationv3.NotificationReport cm
 				result << createEvent(name: "tamper", value: "detected", descriptionText: "$device.displayName was tampered")
                 result << createEvent(name: "acceleration", value: "active", descriptionText: "$device.displayName was moved", displayed:false)
 				break
-			case 7:
-				//result << motionEvent(1)
+			case 8:
+				result << motionEvent(1)
 				break
-		}
+		}		
 	} else {
         logging("Need to handle this cmd.notificationType: ${cmd.notificationType}")
 		result << createEvent(descriptionText: cmd.toString(), isStateChange: false)
