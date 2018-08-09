@@ -16,7 +16,7 @@
 */
 
  metadata {
-	definition (name: "Aeon Garage Door - RV v0.1", namespace: "robertvandervoort", author: "Robert Vandervoort") {
+	definition (name: "Aeon Garage Door", namespace: "robertvandervoort", author: "Robert Vandervoort") {
 		capability "Alarm" // 0x71 Notification v4
 		capability "Battery"
 		capability "Switch" // 0x25 Switch Binary v1
