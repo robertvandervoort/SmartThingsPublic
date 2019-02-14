@@ -60,9 +60,6 @@
 					[value: 96, color: "#bc2323"]
 				]
             }
-            tileAttribute ("statusText", key: "SECONDARY_CONTROL") {
-				attributeState "statusText", label:'${currentValue}'
-			}
 		}
         standardTile("motion","device.motion", inactiveLabel: false, width: 2, height: 2) {
                 state "inactive",label:'no motion',icon:"st.motion.motion.inactive",backgroundColor:"#ffffff"
@@ -157,22 +154,8 @@ def parse(String description)
     } else {
         state.batteryRuntimeStart = now()
     }
-    
-    def statusTextmsg = ""
-    result.each {
-        if ((it instanceof Map) == true && it.find{ it.key == "name" }?.value == "humidity") {
-            statusTextmsg = "${it.value}% RH - ${device.currentValue('illuminance')? device.currentValue('illuminance') : "0%"} LUX - ${device.currentValue('ultravioletIndex')? device.currentValue('ultravioletIndex') : "0"} UV"
-        }
-        if ((it instanceof Map) == true && it.find{ it.key == "name" }?.value == "illuminance") {
-            statusTextmsg = "${device.currentValue('humidity')? device.currentValue('humidity') : "0"}% RH - ${it.value} LUX - ${device.currentValue('ultravioletIndex')? device.currentValue('ultravioletIndex') : "0"} UV"
-        }
-        if ((it instanceof Map) == true && it.find{ it.key == "name" }?.value == "ultravioletIndex") {
-            statusTextmsg = "${device.currentValue('humidity')? device.currentValue('humidity') : "0"}% RH - ${device.currentValue('illuminance')? device.currentValue('illuminance') : "0"} LUX - ${it.value} UV"
-        }
-    }
-    if (statusTextmsg != "") sendEvent(name:"statusText", value:statusTextmsg, displayed:false)
-
-	if ( result[0] != null ) { result }
+	
+    if ( result[0] != null ) { result }
 }
 
 def zwaveEvent(physicalgraph.zwave.commands.securityv1.SecurityMessageEncapsulation cmd) {
@@ -291,13 +274,7 @@ def zwaveEvent(physicalgraph.zwave.commands.notificationv3.NotificationReport cm
 	if (cmd.notificationType == 7) {
 		switch (cmd.event) {
 			case 0:
-				if (cmd.eventParameter == 8) {result << motionEvent(0)}
-				result << createEvent(name: "tamper", value: "clear", descriptionText: "$device.displayName tamper cleared")
-                result << createEvent(name: "acceleration", value: "inactive", descriptionText: "$device.displayName tamper cleared", displayed:false)
-				break
-			case 3:
-				result << createEvent(name: "tamper", value: "detected", descriptionText: "$device.displayName was tampered")
-                result << createEvent(name: "acceleration", value: "active", descriptionText: "$device.displayName was moved", displayed:false)
+				result << motionEvent(0)
 				break
 			case 8:
 				result << motionEvent(1)
@@ -408,7 +385,7 @@ def updated()
     
     if (device.currentValue("battery") == null) cmds << zwave.batteryV1.batteryGet()
     if (device.currentValue("temperature") == null) cmds << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:1, scale:1)
-    if (device.currentValue("illuminance") == null) cmds << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:5, scale:1)
+    if (device.currentValue("illuminance") == null) cmds << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:3, scale:1)
         
     //updateStatus()
     
@@ -424,7 +401,7 @@ def resetTamperAlert() {
 }
 
 def convertParam(number, value) {
-	switch (number){
+	/*switch (number){
         case 41:
             //Parameter difference between firmware versions
         	if (settings."41".toInteger() != null && device.currentValue("currentFirmware") != null) {
@@ -496,7 +473,7 @@ def convertParam(number, value) {
         default:
         	value
         break
-    }
+    }*/
 }
 
 def update_current_properties(cmd)
@@ -721,31 +698,7 @@ private getRoundedInterval(number) {
 
 private getAdjustedWake(){
     def wakeValue
-    if (device.currentValue("currentFirmware") != null && settings."101" != null && settings."111" != null){
-        if (device.currentValue("currentFirmware") == "1.08"){
-            if (settings."101".toInteger() == 241){   
-                if (settings."111".toInteger() <= 3600){
-                    wakeValue = getRoundedInterval(settings."111")
-                } else {
-                    wakeValue = 3600
-                }
-            } else {
-                wakeValue = 1800
-            }
-        } else {
-            if (settings."101".toInteger() == 241){   
-                if (settings."111".toInteger() <= 3600){
-                    wakeValue = getRoundedInterval(settings."111")
-                } else {
-                    wakeValue = getRoundedInterval(settings."111".toInteger() / 2)
-                }
-            } else {
-                wakeValue = 240
-            }
-        }
-    } else {
-        wakeValue = 3600
-    }
+    wakeValue = 3600
     return wakeValue.toInteger()
 }
 
