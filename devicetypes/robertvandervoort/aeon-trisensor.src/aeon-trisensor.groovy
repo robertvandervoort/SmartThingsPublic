@@ -48,9 +48,8 @@
 	simulator {
 	}
 	tiles (scale: 2) {
-		multiAttributeTile(name:"temperature", type:"generic", width:6, height:4) {
-			tileAttribute("device.temperature", key: "PRIMARY_CONTROL") {
-            	attributeState "temperature", label:'${currentValue}°', icon:"st.motion.motion.inactive", backgroundColors:[
+		standardTile("temperature", "device.temperature", inactiveLabel: false, width:6, height:4) {
+			state "temperature", label:'${currentValue}°', backgroundColors:[
                 	[value: 31, color: "#153591"],
                     [value: 44, color: "#1e9cbb"],
                     [value: 59, color: "#90d2a7"],
@@ -60,7 +59,6 @@
 					[value: 96, color: "#bc2323"]
 				]
             }
-		}
         standardTile("motion","device.motion", inactiveLabel: false, width: 2, height: 2) {
                 state "inactive",label:'no motion',icon:"st.motion.motion.inactive",backgroundColor:"#ffffff"
                 state "active",label:'motion',icon:"st.motion.motion.active",backgroundColor:"#00a0dc"
@@ -84,8 +82,7 @@
         valueTile("batteryTile", "device.batteryTile", inactiveLabel: false, width: 2, height: 2) {
 			state "batteryTile", label:'${currentValue}', unit:""
 		}
-        valueTile(
-			"currentFirmware", "device.currentFirmware", inactiveLabel: false, width: 2, height: 2) {
+        valueTile("currentFirmware", "device.currentFirmware", inactiveLabel: false, width: 2, height: 2) {
 			state "currentFirmware", label:'Firmware: v${currentValue}', unit:""
 		}
         standardTile("refresh", "device.switch", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
@@ -95,22 +92,15 @@
             state "NO" , label:'', action:"configuration.configure", icon:"st.secondary.configure"
             state "YES", label:'', action:"configuration.configure", icon:"https://github.com/erocm123/SmartThingsPublic/raw/master/devicetypes/erocm123/qubino-flush-1d-relay.src/configure@2x.png"
         }
-        standardTile(
-			"batteryRuntime", "device.batteryRuntime", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
+        standardTile("batteryRuntime", "device.batteryRuntime", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
 			state "batteryRuntime", label:'Battery: ${currentValue} Double tap to reset counter', unit:"", action:"resetBatteryRuntime"
 		}
-        standardTile(
-			"statusText2", "device.statusText2", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
+        standardTile("statusText2", "device.statusText2", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
 			state "statusText2", label:'${currentValue}', unit:"", action:"resetBatteryRuntime"
 		}
         
-		main([
-        	"temperature", "motion"
-            ])
-		details([
-        	"temperature","illuminance","motion","batteryTile", 
-            "refresh", "configure", "statusText2", 
-            ])
+		main("temperature")
+		details("temperature","illuminance","motion","batteryTile","refresh","configure","statusText2")
 	}
 }
 
@@ -401,7 +391,7 @@ def resetTamperAlert() {
 }
 
 def convertParam(number, value) {
-	/*switch (number){
+	switch (number){
         case 41:
             //Parameter difference between firmware versions
         	if (settings."41".toInteger() != null && device.currentValue("currentFirmware") != null) {
@@ -473,7 +463,7 @@ def convertParam(number, value) {
         default:
         	value
         break
-    }*/
+    }
 }
 
 def update_current_properties(cmd)
@@ -534,7 +524,7 @@ def update_needed_settings()
 
                     logging("Parameter ${it.@index} will be updated to " + convertParam(it.@index.toInteger(), settings."${it.@index}".toInteger()))
                     
-                    /*
+               
                     if (it.@index == "41") {
                         if (device.currentValue("currentFirmware") == "1.06" || device.currentValue("currentFirmware") == "1.06EU") {
                             cmds << zwave.configurationV1.configurationSet(configurationValue: integer2Cmd(convertParam(it.@index.toInteger(), settings."${it.@index}".toInteger()), 2), parameterNumber: it.@index.toInteger(), size: 2)
@@ -544,9 +534,9 @@ def update_needed_settings()
                             cmds << zwave.configurationV1.configurationSet(configurationValue: integer2Cmd(convertParam(it.@index.toInteger(), settings."${it.@index}".toInteger()), 3), parameterNumber: it.@index.toInteger(), size: 3)
                         }
                     } else {
-                    */
+                    
                         cmds << zwave.configurationV1.configurationSet(configurationValue: integer2Cmd(convertParam(it.@index.toInteger(), settings."${it.@index}".toInteger()), it.@byteSize.toInteger()), parameterNumber: it.@index.toInteger(), size: it.@byteSize.toInteger())
-                    // }
+                     }
 
                     cmds << zwave.configurationV1.configurationGet(parameterNumber: it.@index.toInteger())
                 }
@@ -614,7 +604,7 @@ def integer2Cmd(value, size) {
 
 private command(physicalgraph.zwave.Command cmd) {
     
-	if (state.sec && cmd.toString() != "WakeUpIntervalGet()") {
+	if (state.sec && cmd.toString() /*!= "WakeUpIntervalGet()"*/) {
 		zwave.securityV1.securityMessageEncapsulation().encapsulate(cmd).format()
 	} else {
 		cmd.format()
