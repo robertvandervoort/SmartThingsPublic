@@ -48,33 +48,25 @@
 	simulator {
 	}
 	tiles (scale: 2) {
-		standardTile("temperature", "device.temperature", inactiveLabel: false, width:6, height:4) {
-			state "temperature", label:'${currentValue}°', backgroundColors:[
+		valueTile("temperature", "device.temperature", inactiveLabel: false, width:6, height:4) {
+			state ("temperature", label:'${currentValue}°',
+            	backgroundColors:[
                 	[value: 31, color: "#153591"],
-                    [value: 44, color: "#1e9cbb"],
-                    [value: 59, color: "#90d2a7"],
+                	[value: 44, color: "#1e9cbb"],
+                	[value: 59, color: "#90d2a7"],
 					[value: 74, color: "#44b621"],
 					[value: 84, color: "#f1d801"],
 					[value: 95, color: "#d04e00"],
 					[value: 96, color: "#bc2323"]
 				]
-            }
+			)
+		}
         standardTile("motion","device.motion", inactiveLabel: false, width: 2, height: 2) {
-                state "inactive",label:'no motion',icon:"st.motion.motion.inactive",backgroundColor:"#ffffff"
-                state "active",label:'motion',icon:"st.motion.motion.active",backgroundColor:"#00a0dc"
+                state ("inactive",label:'no motion',icon:"st.motion.motion.inactive",backgroundColor:"#ffffff")
+                state ("active",label:'motion',icon:"st.motion.motion.active",backgroundColor:"#00a0dc")
 		}
 		valueTile("illuminance", "device.illuminance", inactiveLabel: false, width: 2, height: 2) {
-           state "luminosity", label:'${currentValue} LUX', unit:"lux", 
-                backgroundColors:[
-                	[value: 0, color: "#000000"],
-                    [value: 1, color: "#060053"],
-                    [value: 3, color: "#3E3900"],
-                    [value: 12, color: "#8E8400"],
-					[value: 24, color: "#C5C08B"],
-					[value: 36, color: "#DAD7B6"],
-					[value: 128, color: "#F3F2E9"],
-                    [value: 1000, color: "#FFFFFF"]
-				]
+           state ("luminosity", label:'${currentValue} LUX', unit:"lux")
 		}
 		valueTile("battery", "device.battery", inactiveLabel: false, width: 2, height: 2) {
 			state "battery", label:'${currentValue}% battery', unit:""
@@ -99,7 +91,7 @@
 			state "statusText2", label:'${currentValue}', unit:"", action:"resetBatteryRuntime"
 		}
         
-		main("temperature")
+		main "temperature"
 		details("temperature","illuminance","motion","batteryTile","refresh","configure","statusText2")
 	}
 }
@@ -901,6 +893,14 @@ Default: 0
 		</Help>
 	</Value>
 	
+    <Value type="short" byteSize="2" index="100" label="Light Sensor Calibrated Coefficient" min="1" max="32767" value="1024" setting_type="zwave" fw="2.07">
+		<Help>
+Defines calibrated light scaled for illuminance sensor reading.
+Range: 1 ~ 32767
+Default: 1024
+		</Help>
+	</Value>
+    
 	<Value type="boolean" index="enableDebugging" label="Enable Debug Logging?" value="true" setting_type="preference" fw="2.07">
 		<Help>
 		</Help>
