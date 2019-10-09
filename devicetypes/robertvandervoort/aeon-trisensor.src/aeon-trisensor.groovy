@@ -48,38 +48,25 @@
 	simulator {
 	}
 	tiles (scale: 2) {
-		multiAttributeTile(name:"temperature", type:"generic", width:6, height:4) {
-			tileAttribute("device.temperature", key: "PRIMARY_CONTROL") {
-            	attributeState "temperature", label:'${currentValue}°', icon:"st.motion.motion.inactive", backgroundColors:[
+		valueTile("temperature", "device.temperature", inactiveLabel: false, width:6, height:4) {
+			state ("temperature", label:'${currentValue}°',
+            	backgroundColors:[
                 	[value: 31, color: "#153591"],
-                    [value: 44, color: "#1e9cbb"],
-                    [value: 59, color: "#90d2a7"],
+                	[value: 44, color: "#1e9cbb"],
+                	[value: 59, color: "#90d2a7"],
 					[value: 74, color: "#44b621"],
 					[value: 84, color: "#f1d801"],
 					[value: 95, color: "#d04e00"],
 					[value: 96, color: "#bc2323"]
 				]
-            }
-            tileAttribute ("statusText", key: "SECONDARY_CONTROL") {
-				attributeState "statusText", label:'${currentValue}'
-			}
+			)
 		}
         standardTile("motion","device.motion", inactiveLabel: false, width: 2, height: 2) {
-                state "inactive",label:'no motion',icon:"st.motion.motion.inactive",backgroundColor:"#ffffff"
-                state "active",label:'motion',icon:"st.motion.motion.active",backgroundColor:"#00a0dc"
+                state ("inactive",label:'no motion',icon:"st.motion.motion.inactive",backgroundColor:"#ffffff")
+                state ("active",label:'motion',icon:"st.motion.motion.active",backgroundColor:"#00a0dc")
 		}
 		valueTile("illuminance", "device.illuminance", inactiveLabel: false, width: 2, height: 2) {
-           state "luminosity", label:'${currentValue} LUX', unit:"lux", 
-                backgroundColors:[
-                	[value: 0, color: "#000000"],
-                    [value: 1, color: "#060053"],
-                    [value: 3, color: "#3E3900"],
-                    [value: 12, color: "#8E8400"],
-					[value: 24, color: "#C5C08B"],
-					[value: 36, color: "#DAD7B6"],
-					[value: 128, color: "#F3F2E9"],
-                    [value: 1000, color: "#FFFFFF"]
-				]
+           state ("luminosity", label:'${currentValue} LUX', unit:"lux")
 		}
 		valueTile("battery", "device.battery", inactiveLabel: false, width: 2, height: 2) {
 			state "battery", label:'${currentValue}% battery', unit:""
@@ -87,8 +74,7 @@
         valueTile("batteryTile", "device.batteryTile", inactiveLabel: false, width: 2, height: 2) {
 			state "batteryTile", label:'${currentValue}', unit:""
 		}
-        valueTile(
-			"currentFirmware", "device.currentFirmware", inactiveLabel: false, width: 2, height: 2) {
+        valueTile("currentFirmware", "device.currentFirmware", inactiveLabel: false, width: 2, height: 2) {
 			state "currentFirmware", label:'Firmware: v${currentValue}', unit:""
 		}
         standardTile("refresh", "device.switch", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
@@ -98,22 +84,15 @@
             state "NO" , label:'', action:"configuration.configure", icon:"st.secondary.configure"
             state "YES", label:'', action:"configuration.configure", icon:"https://github.com/erocm123/SmartThingsPublic/raw/master/devicetypes/erocm123/qubino-flush-1d-relay.src/configure@2x.png"
         }
-        standardTile(
-			"batteryRuntime", "device.batteryRuntime", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
+        standardTile("batteryRuntime", "device.batteryRuntime", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
 			state "batteryRuntime", label:'Battery: ${currentValue} Double tap to reset counter', unit:"", action:"resetBatteryRuntime"
 		}
-        standardTile(
-			"statusText2", "device.statusText2", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
+        standardTile("statusText2", "device.statusText2", inactiveLabel: false, decoration: "flat", width: 2, height: 2) {
 			state "statusText2", label:'${currentValue}', unit:"", action:"resetBatteryRuntime"
 		}
         
-		main([
-        	"temperature", "motion"
-            ])
-		details([
-        	"temperature","illuminance","motion","batteryTile", 
-            "refresh", "configure", "statusText2", 
-            ])
+		main "temperature"
+		details("temperature","illuminance","motion","batteryTile","refresh","configure","statusText2")
 	}
 }
 
@@ -157,22 +136,8 @@ def parse(String description)
     } else {
         state.batteryRuntimeStart = now()
     }
-    
-    def statusTextmsg = ""
-    result.each {
-        if ((it instanceof Map) == true && it.find{ it.key == "name" }?.value == "humidity") {
-            statusTextmsg = "${it.value}% RH - ${device.currentValue('illuminance')? device.currentValue('illuminance') : "0%"} LUX - ${device.currentValue('ultravioletIndex')? device.currentValue('ultravioletIndex') : "0"} UV"
-        }
-        if ((it instanceof Map) == true && it.find{ it.key == "name" }?.value == "illuminance") {
-            statusTextmsg = "${device.currentValue('humidity')? device.currentValue('humidity') : "0"}% RH - ${it.value} LUX - ${device.currentValue('ultravioletIndex')? device.currentValue('ultravioletIndex') : "0"} UV"
-        }
-        if ((it instanceof Map) == true && it.find{ it.key == "name" }?.value == "ultravioletIndex") {
-            statusTextmsg = "${device.currentValue('humidity')? device.currentValue('humidity') : "0"}% RH - ${device.currentValue('illuminance')? device.currentValue('illuminance') : "0"} LUX - ${it.value} UV"
-        }
-    }
-    if (statusTextmsg != "") sendEvent(name:"statusText", value:statusTextmsg, displayed:false)
-
-	if ( result[0] != null ) { result }
+	
+    if ( result[0] != null ) { result }
 }
 
 def zwaveEvent(physicalgraph.zwave.commands.securityv1.SecurityMessageEncapsulation cmd) {
@@ -291,13 +256,7 @@ def zwaveEvent(physicalgraph.zwave.commands.notificationv3.NotificationReport cm
 	if (cmd.notificationType == 7) {
 		switch (cmd.event) {
 			case 0:
-				if (cmd.eventParameter == 8) {result << motionEvent(0)}
-				result << createEvent(name: "tamper", value: "clear", descriptionText: "$device.displayName tamper cleared")
-                result << createEvent(name: "acceleration", value: "inactive", descriptionText: "$device.displayName tamper cleared", displayed:false)
-				break
-			case 3:
-				result << createEvent(name: "tamper", value: "detected", descriptionText: "$device.displayName was tampered")
-                result << createEvent(name: "acceleration", value: "active", descriptionText: "$device.displayName was moved", displayed:false)
+				result << motionEvent(0)
 				break
 			case 8:
 				result << motionEvent(1)
@@ -408,7 +367,7 @@ def updated()
     
     if (device.currentValue("battery") == null) cmds << zwave.batteryV1.batteryGet()
     if (device.currentValue("temperature") == null) cmds << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:1, scale:1)
-    if (device.currentValue("illuminance") == null) cmds << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:5, scale:1)
+    if (device.currentValue("illuminance") == null) cmds << zwave.sensorMultilevelV5.sensorMultilevelGet(sensorType:3, scale:1)
         
     //updateStatus()
     
@@ -557,7 +516,7 @@ def update_needed_settings()
 
                     logging("Parameter ${it.@index} will be updated to " + convertParam(it.@index.toInteger(), settings."${it.@index}".toInteger()))
                     
-                    /*
+               
                     if (it.@index == "41") {
                         if (device.currentValue("currentFirmware") == "1.06" || device.currentValue("currentFirmware") == "1.06EU") {
                             cmds << zwave.configurationV1.configurationSet(configurationValue: integer2Cmd(convertParam(it.@index.toInteger(), settings."${it.@index}".toInteger()), 2), parameterNumber: it.@index.toInteger(), size: 2)
@@ -567,9 +526,9 @@ def update_needed_settings()
                             cmds << zwave.configurationV1.configurationSet(configurationValue: integer2Cmd(convertParam(it.@index.toInteger(), settings."${it.@index}".toInteger()), 3), parameterNumber: it.@index.toInteger(), size: 3)
                         }
                     } else {
-                    */
+                    
                         cmds << zwave.configurationV1.configurationSet(configurationValue: integer2Cmd(convertParam(it.@index.toInteger(), settings."${it.@index}".toInteger()), it.@byteSize.toInteger()), parameterNumber: it.@index.toInteger(), size: it.@byteSize.toInteger())
-                    // }
+                     }
 
                     cmds << zwave.configurationV1.configurationGet(parameterNumber: it.@index.toInteger())
                 }
@@ -637,7 +596,7 @@ def integer2Cmd(value, size) {
 
 private command(physicalgraph.zwave.Command cmd) {
     
-	if (state.sec && cmd.toString() != "WakeUpIntervalGet()") {
+	if (state.sec && cmd.toString() /*!= "WakeUpIntervalGet()"*/) {
 		zwave.securityV1.securityMessageEncapsulation().encapsulate(cmd).format()
 	} else {
 		cmd.format()
@@ -721,31 +680,7 @@ private getRoundedInterval(number) {
 
 private getAdjustedWake(){
     def wakeValue
-    if (device.currentValue("currentFirmware") != null && settings."101" != null && settings."111" != null){
-        if (device.currentValue("currentFirmware") == "1.08"){
-            if (settings."101".toInteger() == 241){   
-                if (settings."111".toInteger() <= 3600){
-                    wakeValue = getRoundedInterval(settings."111")
-                } else {
-                    wakeValue = 3600
-                }
-            } else {
-                wakeValue = 1800
-            }
-        } else {
-            if (settings."101".toInteger() == 241){   
-                if (settings."111".toInteger() <= 3600){
-                    wakeValue = getRoundedInterval(settings."111")
-                } else {
-                    wakeValue = getRoundedInterval(settings."111".toInteger() / 2)
-                }
-            } else {
-                wakeValue = 240
-            }
-        }
-    } else {
-        wakeValue = 3600
-    }
+    wakeValue = 3600
     return wakeValue.toInteger()
 }
 
@@ -958,6 +893,14 @@ Default: 0
 		</Help>
 	</Value>
 	
+    <Value type="short" byteSize="2" index="100" label="Light Sensor Calibrated Coefficient" min="1" max="32767" value="1024" setting_type="zwave" fw="2.07">
+		<Help>
+Defines calibrated light scaled for illuminance sensor reading.
+Range: 1 ~ 32767
+Default: 1024
+		</Help>
+	</Value>
+    
 	<Value type="boolean" index="enableDebugging" label="Enable Debug Logging?" value="true" setting_type="preference" fw="2.07">
 		<Help>
 		</Help>
